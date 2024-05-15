@@ -15,4 +15,4 @@ Polymorphism allows for code that can interact with multiple different entities 
 
 If we have a method `eat()`. And we write code for `eat()`, we want it to be able to be used with multiple other entites of data (refer to `encapsulation.md`), instead of just one. We want `eat()` to be accessbile to other entites like a cat, dog and person. Not just the original entity we wrote it for.
 
-> 🧠 It sounds like *polymorphism* is a way for us to better recycle and reuse code. If we can create code that is malleable and can be used in multiple scenarios we may be able to write code more efficiently, avoid repeating ourselves and possibly create a more adaptalbe code base??
+> 🧠 It sounds like *polymorphism* is a way for us to better recycle and reuse code. If we can create code that is malleable and can be used in multiple scenarios we may be able to write code more efficiently, avoid repeating ourselves and possibly create a more adaptalbe code
