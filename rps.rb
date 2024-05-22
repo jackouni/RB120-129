@@ -154,5 +154,4 @@ class Move
   end
 end
 
-game = RPSGame.new
-game.play
+p RPSGame.new.instance_variables
