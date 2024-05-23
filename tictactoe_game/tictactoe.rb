@@ -1,5 +1,13 @@
 ## TTT Game
 
+module GameDisplays
+  def welcome_message
+    puts "Welcome to Tic Tac Toe!"
+    puts "-----------------------"
+  end
+end
+
+
 class TTTGame
   attr_reader :board, :player1, :player2
 
@@ -98,16 +106,27 @@ class Player
 end
 
 class Board
+  attr_accessor :squares
 
   def initialize
     @squares = Array.new(3) { Array.new(3) { Square.new } } 
   end
 
-
+  def to_s
+    squares.each do |row|
+      row.each { |square| print "| #{square} |" }
+      puts ""
+    end
+  end
 end
 
 class Square
-  attr_accessor :mark
+  attr_reader :mark
+
+  def to_s
+    mark == nil ? "*" : mark
+  end
 end
 
 game = TTTGame.new
+game.play
