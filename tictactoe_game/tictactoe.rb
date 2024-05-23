@@ -118,15 +118,31 @@ class Board
       puts ""
     end
   end
+
+  def is_full?
+    squares.all? do |row|
+      row.all? { |square| square.occupied? }
+    end
+  end
+
+
 end
 
 class Square
-  attr_reader :mark
+  attr_reader :marker
 
   def to_s
-    mark == nil ? "*" : mark
+    marker == nil ? "*" : marker
+  end
+
+  def occupied?
+    marker != nil
+  end
+
+  def unoccupied?
+    marker == nil
   end
 end
 
-game = TTTGame.new
-game.play
+# game = TTTGame.new
+# game.play
