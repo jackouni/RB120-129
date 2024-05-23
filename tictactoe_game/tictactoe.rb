@@ -1,47 +1,27 @@
-## OOP Tic Tac Toe Game
+## TTT Game
 
-=begin  
-  Desc:
-    Tic Tac Toe is a 2 player game where players take turns between placing their designated symbol (X or O) on a 
-    square on a 3x3 grid-board. The first player to place 3 of their symbols in a line from one end of the board to the other 
-    (horizontal, diagonal, verticle) wins. Otherwise if no winning position evaluated then it's a tie game.
+class TTTGame
 
+  def initialize
+    @board = Board.new
+    @player1 = Player.new
+  end
 
-  Nouns:
-    • Player
-    • Board
-    • Game
-    • Symbol
-      - X 
-      - O
-    • Line
-      - Horizontal
-      - Vertical
-      - Diagonal
-
-  Verbs:
-    • placing_symbol
-    • take_turn
-    • winning_position_evaluated
-    • play
-
-  Organize:
-    • Game
-      ** Display
-      - play
-      - board_evaluated
-      - wins?
-
-      • Player
-        • Human
-          - placing_symbol / take_turn
-          • Symbol
-        • Computer
-          - placing_symbol / take_turn
-          • Symbol
-        
-      • Board
-        • Square
+  def play
+    welcome_message
+    
+    loop do
+      puts board
+      break if board.is_full?
       
-=end
+      player1.take_turn
+      break if board.winning_line?
+      
+      player2.take_turn
+      break if board.winning_line?
+    end
 
+    display_results
+    goodbye
+  end
+end
