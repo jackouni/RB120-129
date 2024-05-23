@@ -27,12 +27,10 @@ class TTTGame
       puts board
       break if board.is_full?
       
-      player1_move = player1.place_marker
-      board.update(player1_move)
+      player1.place_marker(board)
       break if board.winning_line?
       
-      player2_move = player2.place_marker
-      board.update(player2_move)
+      player2.place_marker(board)
       break if board.winning_line?
     end
 
@@ -103,6 +101,17 @@ class Player
 
     marker.upcase
   end
+
+  def place_marker(board)
+    puts "Choose row:"
+    row = gets.chomp.to_i
+
+    puts "Choose column:"
+    col = gets.chomp.to_i
+
+    square = board.squares[row][col] 
+    square.marker = self.marker
+  end
 end
 
 class Board
@@ -125,11 +134,50 @@ class Board
     end
   end
 
+  def horizontal_wins?
+    squares.any? do |row|
+      comparison_square = row.first
+      row.all? { |square| square == comparison_square }
+    end
+  end
 
+  def vertical_wins?
+    (0..2).any? do |col| # Check each column index
+      top_column_square = squares[0][col] # Square at the top of column
+
+      squares.all? do |row|
+        square = row[col]
+        square == top_column_square
+      end
+    end
+  end
+
+  def diagonal_wins?
+    top_left_square = squares[0][0]
+    top_left_diagonal = Array(0..2).all? do |ind|
+                            square = squares[ind][ind]    
+                            square == top_left_square  
+                          end
+
+    top_right_square = squares[0][2]
+    top_right_diagonal = Array(0..2).reverse.all? do |ind|
+                            square = squares[2-ind][ind] 
+                            square == top_right_square
+                          end
+
+    top_left_diagonal || top_right_diagonal
+  end
+
+  def winning_line?
+    return true if horizontal_wins?
+    return true if vertical_wins?
+    return true if diagonal_wins?
+    false
+  end
 end
 
 class Square
-  attr_reader :marker
+  attr_accessor :marker
 
   def to_s
     marker == nil ? "*" : marker
@@ -142,7 +190,12 @@ class Square
   def unoccupied?
     marker == nil
   end
+
+  def ==(other_square)
+    marker == other_square.marker && other_square.occupied?
+  end
+
 end
 
-# game = TTTGame.new
-# game.play
+game = TTTGame.new
+game.play
