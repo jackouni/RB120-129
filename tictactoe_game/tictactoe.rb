@@ -4,16 +4,29 @@ module GameDisplays
   def welcome_message
     puts "Welcome to Tic Tac Toe!"
     puts "-----------------------"
+    sleep(2)
+    system('clear')
+  end
+
+  def display_results(winner)
+    if winner == "Tie"
+      puts "No one wins. Tie game."
+    else
+      puts "#{winner.name} won!"
+    end
+  end
+
+  def goodbye
+    puts "Good game! Goodbye now."
   end
 end
 
-
 class TTTGame
   attr_reader :board, :player1, :player2
-
   include GameDisplays
-  
+
   def initialize
+    welcome_message
     @board   = Board.new
 
     @player1 = Player.new
@@ -21,21 +34,39 @@ class TTTGame
   end
 
   def play
-    welcome_message
     
     loop do
-      puts board
       break if board.is_full?
       
+      board.status
+
       player1.place_marker(board)
-      break if board.winning_line?
-      
+      break if board.winning_line
+
+      board.status
+
       player2.place_marker(board)
-      break if board.winning_line?
+      break if board.winning_line
+      system('clear')
+      board.status
     end
 
-    display_results
+    system('clear')
+    board.status
+    display_results(game_results)
     goodbye
+  end
+
+  def game_results
+    winning_line   = board.winning_line
+
+    winning_mark   = ''
+    winning_mark   = winning_line.sample.marking unless winning_line == nil
+    winning_player = 'No one'
+
+    winning_player = player1 if player1.marker == winning_mark
+    winning_player = player2 if player2.marker == winning_mark
+    winning_player
   end
 end
 
@@ -63,7 +94,7 @@ class Player
         next
       end 
       
-      unless name.size > 2 && name.match?(/[0-9a-z]/i) 
+      unless name.size > 1 && name.match?(/[0-9a-z]/i) 
         puts "Stop messing around and enter a valid name..."
         puts "A valid name being: A name with at least 2 characters and includes letters and/or numbers in it"
         next
@@ -91,26 +122,56 @@ class Player
         next
       end 
       
-      unless marker.match?(/[a-z]/i) && marker.size == 1
+      unless (marker.match?(/[a-z]/i) && marker.size == 1)
         puts "Marker must be a single letter. Please try again."
         next
       end
 
+      system('clear')
       break
     end
 
     marker.upcase
   end
 
+  def get_user_coordinate
+    input = ''
+
+    loop do
+      input = gets.chomp
+      break if valid_row_col?(input)
+      system('clear')
+      puts "Please enter a valid number (1, 2 or 3)!!"
+    end
+
+    input.to_i
+  end
+
   def place_marker(board)
-    puts "Choose row:"
-    row = gets.chomp.to_i
+    row = nil
+    col = nil
+    square = nil
 
-    puts "Choose column:"
-    col = gets.chomp.to_i
+    loop do
+      puts "#{name}, choose row placement:"
+      row = get_user_coordinate
+      
+      puts "#{name}, choose column placement:"
+      col = get_user_coordinate
 
-    square = board.squares[row][col] 
-    square.marker = self.marker
+      square = board.squares[row-1][col-1]
+      break if square.unoccupied?
+      
+      puts "Sorry, that square is occupied. Please make another selection!"
+    end
+
+    square.marking = marker
+  end
+
+  def valid_row_col?(input)
+    return false unless input.to_i.to_s == input
+    return false unless input.to_i > 0 && input.to_i < 4
+    true 
   end
 end
 
@@ -121,10 +182,25 @@ class Board
     @squares = Array.new(3) { Array.new(3) { Square.new } } 
   end
 
-  def to_s
-    squares.each do |row|
-      row.each { |square| print "| #{square} |" }
-      puts ""
+  def status
+    system('clear')
+    puts "\n"
+    puts "      1   2   3   Column"
+    
+    squares.each_with_index do |row, r_ind|
+      puts "    +---+---+---+" if r_ind == 0
+      print " #{r_ind+1}  "
+      
+      row.each_with_index do |square, s_ind|
+        if s_ind == 1
+          print " #{square} "
+        else
+          print "| #{square} |"
+        end
+      end
+
+      puts "\n"
+      puts "Row +---+---+---+" if r_ind == 2
     end
   end
 
@@ -134,67 +210,62 @@ class Board
     end
   end
 
-  def horizontal_wins?
-    squares.any? do |row|
-      comparison_square = row.first
-      row.all? { |square| square == comparison_square }
+  def horizontal_lines
+    squares
+  end
+
+  def vertical_lines
+    vertical_lines = []
+
+    3.times do |col_ind|
+      vertical_line = squares.inject([]) { |line, row| line << row[col_ind] }
+      vertical_lines << vertical_line
     end
+
+    vertical_lines
   end
 
-  def vertical_wins?
-    (0..2).any? do |col| # Check each column index
-      top_column_square = squares[0][col] # Square at the top of column
-
-      squares.all? do |row|
-        square = row[col]
-        square == top_column_square
-      end
-    end
+  def top_left_diagonal_line
+    squares.map.with_index { |row, ind| row[ind] }
   end
 
-  def diagonal_wins?
-    top_left_square = squares[0][0]
-    top_left_diagonal = Array(0..2).all? do |ind|
-                            square = squares[ind][ind]    
-                            square == top_left_square  
-                          end
-
-    top_right_square = squares[0][2]
-    top_right_diagonal = Array(0..2).reverse.all? do |ind|
-                            square = squares[2-ind][ind] 
-                            square == top_right_square
-                          end
-
-    top_left_diagonal || top_right_diagonal
+  def top_right_diagonal_line
+    reversed_squares = squares.map(&:reverse)
+    reversed_squares.map.with_index { |row, ind| row[ind] }
   end
 
-  def winning_line?
-    return true if horizontal_wins?
-    return true if vertical_wins?
-    return true if diagonal_wins?
-    false
+  def winning_line
+    diagonal_lines = [top_left_diagonal_line, top_right_diagonal_line]
+    all_lines = [vertical_lines, horizontal_lines, diagonal_lines]
+    all_lines = all_lines.flatten(1)
+
+    line_win = all_lines.select do |line|
+                comparison_square = line.first
+                line.all?(comparison_square)
+              end
+    
+    line_win.empty? ? nil : line_win.flatten
   end
 end
 
 class Square
-  attr_accessor :marker
+  attr_accessor :marking
 
   def to_s
-    marker == nil ? "*" : marker
+    marking == nil ? "*" : marking
   end
 
   def occupied?
-    marker != nil
+    marking != nil
   end
 
   def unoccupied?
-    marker == nil
+    marking == nil
   end
 
   def ==(other_square)
-    marker == other_square.marker && other_square.occupied?
+    marking == other_square.marking && other_square.occupied?
   end
-
 end
 
 game = TTTGame.new
