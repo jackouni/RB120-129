@@ -1,7 +1,7 @@
 # OOD Tic Tac Toe Game
 
 ## Game Description:
-TicTacToe is a 2 player game where players take turns placing their respective marker on a square of a 3x3 board. The first player to get a straight line of 3 of their symbol on the board wins (diagonal, horizontal or vertical). Otherwise if the board is full and neither player has made a straight line (a win) of 3 with their marker, it's a tie game.
+TicTacToe is a 2 player game consisting of 2 players and a squared board with tiles on it. Each player selects a marker that they will use throughout the game. Players take turns placing their marker on an unoccupied tile on the board, with the goal of getting a straight line of tiles occupied with their marker. A player wins when they have achieved a "winning line" and then the game is ended. If all tiles on the board are marked but there is no "winning line" then it is a tie game and then the game in ended.
 
 ## Description The Game's Flow:
 ### Start Game 
