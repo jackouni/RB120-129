@@ -1,3 +1,13 @@
+require_relative 'board.rb'
+
+
+class TTTDisplay
+  def display_welcome_message
+    puts "Welcome to Jack's OOP Tic Tac Toe!"
+    puts "----------------------------------"
+  end
+end
+
 class TTTGame
   def initialize
     @board   = Board.new 
@@ -14,13 +24,13 @@ class TTTGame
     display.welcome_message
 
     loop do
-      update_board_with(player1.tile_placement)
-      display.board_status
+      player1.place_marker(board)
+      puts board
       
       break if board.winning_line
       
-      update_board_with(player2.tile_placement)
-      display.board_status
+      player2.place_marker(board)
+      puts board
 
       break if board.full?
       break if board.winning_line?
@@ -37,3 +47,4 @@ class TTTGame
     display.goodbye_message
   end
 end
+
