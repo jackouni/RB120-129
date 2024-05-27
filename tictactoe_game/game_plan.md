@@ -3,23 +3,41 @@
 ## Game Description:
 TicTacToe is a 2 player game consisting of 2 players and a squared board with tiles on it. Each player selects a marker that they will use throughout the game. Players take turns placing their marker on an unoccupied tile on the board, with the goal of getting a straight line of tiles occupied with their marker. A player wins when they have achieved a "winning line" and then the game is ended. If all tiles on the board are marked but there is no "winning line" then it is a tie game and then the game in ended.
 
-## Description The Game's Flow:
-### Start Game 
-1. Player 1 chooses a marker
-1. Player 2 chooses a marker (that is **NOT** the same marker as player 1's)
+## Big-Picture Description Of The Game's Flow:
+### 1: Start Game 
+1. Welcome message is displayed
+1. Player 1 chooses a marker and name
+1. Player 2 chooses a marker and name (that is **NOT** the same marker/name as player 1's)
+1. A board is created
+  - tiles for the board are created and populate the board
+    > What is a board? What data Structure? Array/2D Array/Hash/String?
 
-### Main Game Play Loop 🔁
-1. #### Player 1 chooses a square on the board to place their marker
-    - ***IF*** all spaces on board are full ***THEN BREAK*** this loop
-    - ***IF*** square on board is occupied ***THEN*** repeat step 1 of this Loop
-2. #### Evaluate if Player 1 wins
-    - ***IF*** a winning line is detected ***THEN BREAK*** this loop
+### 2: Main Game Play Loop 🔁
+1. #### Player 1 chooses a tile on the board to place their marker
+    - ***IF*** all tiles on board are marked ***THEN BREAK*** this loop
+    - ***IF*** tile on board is occupied ***THEN*** repeat step 1 of this Loop
+2. #### Evaluate if tile is occupied or not
+    - ***IF*** tile is occupied ***THEN*** go back to step 2.1
+    - ***ELSE*** continue to next step
+3. #### Evaluate for winning lines
+    - ***IF*** winning line is found ***THEN BREAK*** out of Main Game Play Loop
+    - ***ELSE*** continue to next step
+4. #### Evaluate for full board
+    - ***IF*** winning line is found ***THEN BREAK*** out of Main Game Play Loop
+    - ***ELSE*** continue to next step
 
 3. #### Player 2 chooses a square on the board to place their marker
     - ***IF*** all spaces on board are full ***THEN BREAK*** this loop
     - ***IF*** square on board is occupied ***THEN*** repeat step 3 of this Loop
-4. #### Evaluate if Player 2 wins
-    - ***IF*** a winning line is detected ***THEN BREAK*** this loop
+2. #### Evaluate if tile is occupied or not
+    - ***IF*** tile is occupied ***THEN*** go back to step 2.1
+    - ***ELSE*** continue to next step
+3. #### Evaluate for winning lines
+    - ***IF*** winning line is found ***THEN BREAK*** out of Main Game Play Loop
+    - ***ELSE*** continue to next step
+4. #### Evaluate for full board
+    - ***IF*** winning line is found ***THEN BREAK*** out of Main Game Play Loop
+    - ***ELSE*** continue to next step
 
 ### End Game 
 1. Check for winner
