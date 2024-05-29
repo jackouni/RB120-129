@@ -10,8 +10,9 @@ class TTTGame
   attr_reader :display, :player1, :player2, :board, :current_player, :players
 
   def initialize
-    @board = Board.new 
-    @players = generate_players
+    clear_display
+    @board = generate_new_board 
+    @players = generate_new_players
     @player1, @player2 = @players
     @current_player = @player1
   end
@@ -20,46 +21,57 @@ class TTTGame
     welcome_message
 
     loop do
-      current_player.place_marker(board)
-      puts board
-      break if board.someone_won? || board.full?
-      alternate_player
-    end
+      loop do
+        current_player.place_marker(board)
+        puts board
+        break if board.someone_won? || board.full?
+        alternate_player
+      end
 
-    if board.someone_won?  
-      display_winner(winning_player)
-    else 
-      display_tie
+      if board.someone_won?  
+        display_winner(winning_player)
+      else 
+        display_tie
+      end
+
+      break unless continue_playing?
+      reset_game
     end
 
     goodbye_message
   end
 
-  def generate_players
-    player1_name   = get_name(1)
-    player1_marker = get_marker(1)
+  def generate_new_board
+    dimensions = get_users_board_dimensions
+    Board.new(dimensions)
+  end
+
+  def generate_new_players
+    player1_name   = get_users_name(1)
+    player1_marker = get_users_marker(1)
 
     if human_vs_computer?
       system('clear')
       computer_marker = ( ('A'..'Z').to_a - [player1_marker] ).sample
-      [Player.new(player1_name, player1_marker), Computer.new("Computer", computer_marker)]
+      [Human.new(player1_name, player1_marker), Computer.new("Computer", computer_marker)]
+
     else
       player2_name   = nil
       player2_marker = nil
 
       loop do
-        player2_name = get_name(2)
+        player2_name = get_users_name(2)
         break unless player1_name == player2_name
         puts "Sorry, that name is already taken! Please, try a different name:"
       end
 
       loop do
-        player2_marker = get_marker(2)
+        player2_marker = get_users_marker(2)
         break unless player1_marker == player2_marker
         puts "Sorry, that marker was taken by #{player1_name}! Please, select a different marker:"
       end
 
-      [Player.new(player1_name, player1_marker), Player.new(player2_name, player2_marker)]
+      [Human.new(player1_name, player1_marker), Human.new(player2_name, player2_marker)]
     end
   end
 
@@ -72,6 +84,13 @@ class TTTGame
 
   def alternate_player
     @current_player = (players - [current_player]).sample
+  end
+
+  def reset_game
+    @board = generate_new_board
+    @players = generate_new_players
+    @player1, @player2 = @players
+    @current_player = @player1
   end
 end
 

@@ -25,6 +25,7 @@ TicTacToe is a 2 player game consisting of 2 players and a squared board with ti
 4. #### Evaluate for full board
     - ***IF*** winning line is found ***THEN BREAK*** out of Main Game Play Loop
     - ***ELSE*** continue to next step
+5. #### Update Board with Player 1's tile choice
 
 3. #### Player 2 chooses a square on the board to place their marker
     - ***IF*** all spaces on board are full ***THEN BREAK*** this loop
@@ -38,6 +39,7 @@ TicTacToe is a 2 player game consisting of 2 players and a squared board with ti
 4. #### Evaluate for full board
     - ***IF*** winning line is found ***THEN BREAK*** out of Main Game Play Loop
     - ***ELSE*** continue to next step
+5. #### Update Board with Player 2's tile choice
 
 ### End Game 
 1. Check for winner

@@ -6,7 +6,7 @@ module Displayable
 
   def display_winner(winner)
     if winner
-      puts "Congratualations #{winner.name}, you won!"
+      puts "#{winner.name} won the game!"
     else
       display_tie
     end
@@ -20,3 +20,4 @@ module Displayable
     puts "That was a great game. Goodbye for now!"
   end
 end
+

@@ -9,14 +9,24 @@ class Player
     @marker = marker
   end
 
-  
+  def same_name?(other_name)
+    name == other_name
+  end
+
+  def same_marker?(other_player)
+    marker == other_player.marker
+  end
+end
+ 
+class Human < Player
   def place_marker(board)
+    dimensions = board.dimensions
     tile = nil
 
     puts "#{name}, select a tile on the board (provide a row and column number):"
     loop do
-      row = get_coordinate_for("row")
-      col = get_coordinate_for("column")
+      row = get_coordinate_for(:row, dimensions)
+      col = get_coordinate_for(:column, dimensions)
       
       tile = board.tiles[row-1][col-1]
       break if tile.unmarked?
@@ -32,9 +42,9 @@ class Computer < Player
     tile = nil
 
     loop do
-      row  = [0, 1, 2].sample
-      col  = [0, 1, 2].sample
-      tile = board.tiles[row][col]
+      row  = (0..board.dimensions).to_a.sample
+      col  = (0..board.dimensions).to_a.sample
+      tile = board.tiles[row-1][col-1]
       break if tile.unmarked?
     end
 

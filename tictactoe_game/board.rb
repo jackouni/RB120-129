@@ -1,41 +1,4 @@
-module Lineable
-  def horizontal_lines
-    self.tiles
-  end
-
-  def vertical_lines
-    columns = []
-
-    3.times do |col_ind|
-      column = []
-      self.tiles.each { |row| column << row[col_ind] } 
-      columns << column
-    end
-
-    columns
-  end
-
-  def top_left_diagonal_line
-    diagonal = []
-    3.times { |ind| diagonal << self.tiles[ind][ind] }
-    diagonal
-  end
-  
-  def top_right_diagonal_line
-    reversed_rows = self.tiles.map(&:reverse)
-    diagonal = []
-    3.times { |ind| diagonal << reversed_rows[ind][ind] }
-    diagonal
-  end
-
-  def diagonal_lines
-    [self.top_left_diagonal_line, self.top_right_diagonal_line]
-  end
-
-  def all_lines
-    [self.diagonal_lines, self.vertical_lines, self.horizontal_lines].flatten(1)
-  end
-end
+require_relative 'lineable.rb'
 
 class Tile
   attr_accessor :marking
@@ -60,20 +23,20 @@ end
 class Board
   include Lineable
 
-  attr_reader :tiles
-  attr_reader :winning_line
+  attr_reader :tiles, :winning_line, :dimensions
 
-  def initialize
-    @tiles        = Array.new(3) { Array.new(3) {Tile.new} }
+  def initialize(dimensions)
+    @tiles        = Array.new(dimensions) { Array.new(dimensions) {Tile.new} }
     @winning_line = nil
+    @dimensions = dimensions
   end
 
   def to_s
     system('clear')
     board_str = ''
 
-    grid_line         = "+-----+-----+-----+\n"
-    empty_row_segment = "|     |     |     |\n"
+    grid_line         = "+-----" * dimensions + "+\n"
+    empty_row_segment = "|     " * dimensions + "|\n"
 
     tiles.each do |row|
       board_str += grid_line
@@ -107,5 +70,9 @@ class Board
 
   def someone_won?
     winning_line != nil
+  end
+
+  def reset 
+    board.tiles.map! { |tile| tile.marking = nil }
   end
 end

@@ -1,33 +1,41 @@
 module Inputable
-  def get_name(player_num)
+  def clear_display
+    system('clear')
+  end
+
+  def get_users_name(player_num, other_player=nil)
     name = ''
 
     puts "Player #{player_num}, What is your name?:"
     loop do
-      name = gets.chomp
+      name = gets.chomp.capitalize
       break if valid_name?(name)
-      system('clear')
+      if other_player
+        break if other_player.same_name?(name) 
+      end
+
+      clear_display
       puts "Name must be at least 2 letters long and can ONLY contain letters"
       puts "Please enter another name:"
     end
     
-    system('clear')
-    name.capitalize
+    clear_display
+    name
   end
 
-  def get_marker(player_num)
+  def get_users_marker(player_num)
     marker = ''
 
     puts "Player #{player_num}, What is your marker?:"
     loop do
       marker = gets.chomp
       break if valid_marker?(marker)
-      system('clear')
+      clear_display
       puts "A marker must be 1 character long and cannot be a space."
       puts "Please enter another marker:"
     end
     
-    system('clear')
+    clear_display
     marker.upcase
   end
 
@@ -39,22 +47,22 @@ module Inputable
     marker.size == 1 && marker != ' '
   end
 
-  def valid_coordinate?(coordinate)
-    coordinate > 0 && coordinate < 4
+  def valid_coordinate?(coordinate, dimensions)
+    coordinate > 0 && coordinate <= dimensions
   end
 
   def valid_yes_no?(answer)
     ['yes', 'no', 'n', 'y'].include?(answer)
   end
 
-  def get_coordinate_for(row_col)
+  def get_coordinate_for(row_col, dimensions)
     selection = nil
 
     puts "Select a #{row_col} on the board:"
     loop do
       selection = gets.chomp.to_i
-      break if valid_coordinate?(selection)
-      puts "Please select a #{row_col} between 1 and 3."
+      break if valid_coordinate?(selection, dimensions)
+      puts "Please select a #{row_col} from 1 to #{dimensions}."
     end
 
     selection
@@ -71,6 +79,40 @@ module Inputable
       puts "Please enter a valid input!"
     end
 
+    clear_display
     answer == "y" || answer == "yes"
+  end
+
+  def valid_dimension?(dimension)
+    dimension.to_i > 0 && dimension.to_i < 6
+  end
+
+  def get_users_board_dimensions
+    dimension = ''
+
+    puts "What dimension would you like for the square board for the game?"
+    loop do
+      puts "Please enter a valid number that is greater than 0 and less than 6:"
+      dimension = gets.chomp
+      break if valid_dimension?(dimension)
+    end
+
+    clear_display
+    dimension.to_i
+  end
+
+  def continue_playing?
+    puts "Would you like to play again?"
+    answer = ''
+
+    loop do 
+      puts "Answer either with 'yes' or 'no':"
+      answer = gets.chomp.downcase
+      break if valid_yes_no?(answer)
+      puts "Please enter a valid input!"
+    end
+
+    clear_display
+    answer == 'y' || answer == 'yes'
   end
 end
