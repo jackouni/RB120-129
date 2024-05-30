@@ -32,10 +32,10 @@ class Human < Player
     puts "(provide a row and column number):"
 
     loop do
-      row = input_coordinate_for(:row, board.dimensions)
-      col = input_coordinate_for(:column, board.dimensions)
+      row    = input_coordinate_for(:row, board.dimensions)
+      column = input_coordinate_for(:column, board.dimensions)
 
-      tile = board.tiles[row - 1][col - 1]
+      tile = board.tile_at(row, column)
       break if tile.unmarked?
       puts "That tile is occupied, please select another tile."
     end
