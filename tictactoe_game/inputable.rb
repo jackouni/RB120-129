@@ -1,8 +1,6 @@
-module Inputable
-  def clear_display
-    system('clear')
-  end
+require_relative "clearable"
 
+module Inputable
   def user_inputs_name(player_num, other_player=nil)
     name = ''
 
