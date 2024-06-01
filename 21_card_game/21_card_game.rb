@@ -1,15 +1,21 @@
-class 21CardGame
+require_relative 'deck'
+require_relative 'participant'
+require_relative 'displayable'
+
+class CardGame
+  include Displayable
+  attr_reader :player, :dealer, :deck
   def initialize
-    @deck = generate_deck
-    @player = Player.new
-    @dealer = Dealer.new
+    @deck   = Deck.new
+    @player = Player.new('Jack')
+    @dealer = Dealer.new('The Dealer')
     @participants = [@player, @dealer]
   end
 
   def play
     welcome_message
-    deck.deal_card_to(player, 2)
-    deck.deal_card_to(dealer, 2)
+    2.times { deck.deal_card_to(player) }
+    2.times { deck.deal_card_to(dealer) }
 
     loop do # Player turn
       display_hands
@@ -19,18 +25,26 @@ class 21CardGame
     end
 
     loop do # Dealer turn
-      
-      display_hands
-      break if     player.bust?
-      break if     dealer.bust? 
+      break if     player.bust? || dealer.bust? 
       break unless dealer.hit?
       deck.deal_card_to(dealer)
     end
 
-    reveal_dealers_hand
-    player.display_hand 
-
+    display_revealed_hands
     tie? ? display_tie : display_winner(winner) 
     goodbye_message
   end
+
+  def tie?
+    player == dealer
+  end
+
+  def winner
+    return player if dealer.bust?
+    return dealer if player.bust?
+    player > dealer ? player : dealer
+  end
 end
+
+game = CardGame.new
+game.play
