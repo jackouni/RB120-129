@@ -1,4 +1,4 @@
-class Deck 
+class Deck
   SUITES     = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
   CARD_TYPES = ['King', 'Ace', 'Queen', 'Jack'] + (2..10).to_a
 
@@ -14,11 +14,7 @@ class Deck
     @stack.shuffle!
   end
 
-  def shuffle
-    stack.shuffle!
-  end
-
-  def deal_card_to(participant)
+  def deal_a_card_to(participant)
     participant.hand << stack.pop
   end
 end
@@ -32,6 +28,6 @@ class Card
   end
 
   def to_s
-    "{#{self.type} of #{self.suite}}"
+    "{ #{type} of #{suite} }"
   end
 end
