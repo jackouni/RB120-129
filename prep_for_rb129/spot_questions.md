@@ -268,3 +268,57 @@ In the example a class, `Account`, is created to represent any account in genera
 
 ---
 
+# What is the difference between a superclass and a subclass?
+
+A subclass is a class that gains access to methods that are accessible to another class through the use of inheritance. A superclass is a class that a subclass is inheritting from. You could say a subclass inherits from a superclass. There's a hierarchical difference between a subclass and superclass, where the superclass is *"higher up"* in the hierarchy compared to the subclass.
+
+---
+
+# What is a module?
+
+In Ruby, a module can be thought of as a container for methods, constants, and classes. Modules are generally used as mixins and/or for namespacing purposes. Methods, constants and classes within a module can be accessed externally via the `::` operator.
+Here's an example:
+
+```ruby
+module Maths
+  PI = 3.14
+
+  def self.add(x, y)
+    x + y
+  end
+
+  def self.sub(x, y)
+    x - y
+  end
+end
+
+p Maths::add(2, 3) #=> 5
+p Maths::sub(2, 3) #=> -1
+p Maths::PI        #=> 3.14
+
+```
+
+Methods defined in a modules can be used as **mixins** to a class by using the `include` keyword, like so:
+```ruby
+module Speakable
+  def say_name
+    puts "My name is #{@name}"
+  end
+
+  def what_am_i
+    puts "I'm a #{self.class}"
+  end
+end
+
+class Human
+  include Speakable # instances of Human can now access methods in the Speakable module
+
+  def initialize(name)
+    @name = name
+  end
+end
+
+jeff = Human.new("Jeff")
+jeff.say_name   #=> My name is Jeff 
+jeff.what_am_i  #=> I'm a Human
+```
