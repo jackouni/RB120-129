@@ -197,7 +197,7 @@ Polymorphism is the concept of objects of different types being able to repsond 
 
 Duck typing is a form of polymorphism, in that it's a way for allowing objects of different types to respond to the same public interfaces, without relying on inheritance or explicit class hierarchies. This is polymorphism where shared interfaces is achieved through the use of mixins or by explicitly defining a behaviour with a common public interface within a class definition.
 
-Duck typing solves the problem of the coupling of objects' behaviours to an inheritance hierarchy by using composition. Duck typing helps loosen the coupling between an object's behaviour to an inheritance hierarchy by allowing for **has-a** relationships to be formed between objects and their behaviours. This can allow for more adaptable, flexible and maintainable code. It eliminates the dependency on a Class in a hierachial chain to maintain the same defined behaviours that are compaitaible with all of the current subclasses today, in a program that will most likely be changing and redefining definitions and subclasses overtime.
+Duck typing solves the problem of the coupling of objects' behaviours to an inheritance hierarchy. Duck typing helps loosen the coupling between an object's behaviour to an inheritance hierarchy by allowing for **has-a** relationships to be formed between objects and their behaviours. This can allow for more adaptable, flexible and maintainable code. It eliminates the dependency on a Class in a hierachial chain to maintain the same defined behaviours that are compaitaible with all of the current subclasses today, in a program that will most likely be changing and redefining definitions and subclasses overtime.
 
 Here's an example:
 
@@ -276,27 +276,7 @@ A subclass is a class that gains access to methods that are accessible to anothe
 
 # What is a module?
 
-In Ruby, a module can be thought of as a container for methods, constants, and classes. Modules are generally used as mixins and/or for namespacing purposes. Methods, constants and classes within a module can be accessed externally via the `::` operator.
-Here's an example:
-
-```ruby
-module Maths
-  PI = 3.14
-
-  def self.add(x, y)
-    x + y
-  end
-
-  def self.sub(x, y)
-    x - y
-  end
-end
-
-p Maths::add(2, 3) #=> 5
-p Maths::sub(2, 3) #=> -1
-p Maths::PI        #=> 3.14
-
-```
+In Ruby, a module can be thought of as a container for methods, constants, and classes. Modules are generally used as mixins or for namespacing purposes.
 
 Methods defined in a modules can be used as **mixins** to a class by using the `include` keyword, like so:
 ```ruby
@@ -322,3 +302,360 @@ jeff = Human.new("Jeff")
 jeff.say_name   #=> My name is Jeff 
 jeff.what_am_i  #=> I'm a Human
 ```
+
+---
+
+# What is a mixin?
+
+A **mixin** is when a module is used to *mix in* behaviour(s) to a class. The general use case for mixins is when objects of different types share behaviour, but inheritance is either not possible or not as optimal to use for sharing that behaviour between differnt object types. Less code can be written when using mixins to share behaviour between different object types/classes by allowing for instance methods to be written once, within the module, as opposed to being written out multiple times for each object type/class that shares the behaviour. 
+
+Here's a practical example of a module being used as a *mixin*:
+```ruby
+module Speakable
+  def speak
+    "I am a #{self.class}. My name is #{@name}."
+  end
+end
+
+class Human
+  include Speakable
+
+  def initialize(name)
+    @name = name
+  end
+end
+
+class Robot
+  include Speakable
+
+  def initialize(name)
+    @name = name
+  end
+end
+
+rob = Human.new('Rob')
+robocop = Robot.new('Robocop')
+
+p rob.speak     #=> "I am a Human. My name is Rob."
+p robocop.speak #=> "I am a Robot. My name is Robocop."
+```
+
+---
+
+# When is it good to use inheritance?
+
+Inheritance might make more sense if types of objects have a natural hierarchical structure or order. When objects have a more *is-a* relationship between eachother. As an example: a Dog *is a* Mammal. This means using inhertiance to share behaviours from a Mammal to a Dog class might make more sense. Also, in situations where an object type is a specialized version of another object type, this could suggest using inheritance as well, where the subclass is a specialized version of the superclass it's inheritting from. These are scenarios where using inheritance would make sense.
+
+#### Recap on when to consider using inheritance:
+- Object types have an *is-a* relationship
+- Object types follow a natural hierarchical pattern or order
+- An Object type (subclass) is a more specialized version of another object type (a parent or superclass)
+
+--- 
+
+# In inheritance, when would it be good to override a method?
+
+In inheritance, you might consider overriding a method when you want to change the behavior of a method inherited from a superclass in a specific subclass.
+
+A practical example of this is `Object#to_s`, an instance method that returns the calling object's `String` counterpart. Custom objects in Ruby inherit from the `Object` class at some point in the hierarchical chain. By default `Object#to_s` returns a `String` a more "literal" representation of a custom made object *(like this, `#<CustomObj:0x000000010463da30>`)*. Typically this returned `String` is not desired when calling `#to_s` on a custom object. More commonly desired, the returned `String` of `#to_s` is of specific readable details of the custom object. Here's an example to illustrate:
+
+```ruby
+class Human
+  def initialize(name)
+    @name = name
+  end
+end
+
+joe = Human.new("Joe")
+puts joe 
+# Actual Output:   #<Human:0x0000000105210600>
+# Expected Output: Hi I'm Joe.
+
+# `to_s` is automatically called on the argument in the implementation of `puts`.
+#  This converts the argument to a `String` that can then be outputted by `puts`.
+
+```
+
+In the above example, we want instances of `Human` to output an introduction of themselves using their `@name` instance variable. Because `puts` calls `#to_s` on its arguments, the default `Object#to_s` is called on `joe`. This returns the `String` version of the literal object, as explained previously.
+
+To get the desired output, we need to override the `Object#to_s` method by defining a `Human#to_s` like so:
+
+```ruby
+class Human
+  def initialize(name)
+    @name = name
+  end
+
+  def to_s
+    "Hi, I'm #{@name}."
+  end
+end
+
+joe = Human.new("Joe")
+puts joe # Outputs: Hi, I'm Joe. 
+
+# `to_s` is automatically called on the argument in the implementation of `puts`.
+#  This converts the argument to a `String` that can then be outputted by `puts`.
+
+```
+
+Now `Human#to_s` is called on `joe` overriding `Object#to_s` and allowing for a more desired output. 
+
+Another scenario for method overriding is when we want to extend the functionality of a superclass' method to a subclass. For example, upon instantiation of an instance of the subclass we want to initialize all the same instance variables as initialized in the `#initialize` of the superclass but include some extra instance variables for the subclass instances. Here's an illustration:
+
+```ruby
+class Employee
+  def initialize(name)
+    @name = name
+  end
+end
+
+class SalesPerson < Employee
+  def initialize(name, total_sales)
+    super(name)
+    @total_sales = total_sales
+  end
+end
+
+jbelfort = SalesPerson.new("Jordan", 5041)
+
+# `jbelfort` will have:
+# a `@name` of `"Jordan"`
+# a `@total_sales` of `5041`
+
+```
+
+In the example above, every `Employee` at the firm has a name, and are instantiated with a given name referenced by `@name`.
+A `SalesPerson` *is-an* `Employee` and therefore should be instantiated with an initialized `@name`, like all other `Employee`. `SalesPerson`s unlike other roles in the company, have a number of their total sales, so upon instantiation should be initialized with a `@total_sales`. Using the `super` keyword, the `initialize` method can be called further up in the method-lookup path, calling `Employee#initialize`, then `@total_sales` can be initialized with in `SalesPerson#initialize` for the caller. This demonstrates using method overriding with `super` to extend superclass functionality.
+
+---
+
+# What is the method lookup path?
+
+**Method lookup path** is the order in which Ruby searches for methods that are called in a program. Once the method that is being called is found, it can be invoked. When an object invokes a method, Ruby searches for the method that is being called in this order:
+
+1. The class definition of the receiving object is searched </br> 
+2. Any modules that are *mixed-into* the class definiton from the last module *included* in the definition to the first </br>
+3. The superclass definition</br>
+4. Any modules *mixed-into* the superclass from last *included* to first </br>
+5. Each subsequent ancestor of the superclass and its *mixed-in* modules </br>
+
+This pattern is repeated until the method is either found or not found and throws a no method error.
+
+Here's an example to demonstrate a method lookup path:
+
+```ruby
+module Barkable
+  def bark
+    "Barking..."
+  end
+end
+
+module Breathable
+  def breath
+    "Breathing..."
+  end
+end
+
+class Animal
+  include Breathable
+end
+
+class Dog < Animal
+  include Barkable
+end
+
+dog = Dog.new
+dog.breath # => "Breathing..."
+dog.jump   # Error thrown: undefined method `jump' for #<Dog:0x0000000102aaf520> (NoMethodError)    
+
+```
+
+When `dog.breath` is called the method will be looked up in this order: </br>
+`Dog` --> `Barkable` --> `Animal` --> `Breathable` </br>
+(*`breath` is found in the `Breathable` module*)
+
+
+When `dog.jump` is called the method will be looked up in this order: </br>
+`Dog` --> `Barkable` --> `Animal` --> `Breathable` --> `Object` --> `Kernel` --> `BasicObject` </br>
+*(`jump` is not found)*
+
+This method lookup for `Dog` objects can be programmatically displayed using the `ancestors` method, like so: </br>
+`Dog.ancestors #=> [Dog, Barkable, Animal, Breathable, Object, Kernel, BasicObject]`
+
+---
+
+# When defining a class, we usually focus on state and behaviors. What is the difference between these two concepts?
+
+*"State"* refers to data that is associated with a specific instance of a class (instance variables), whereas *"behaviour"* refers to the methods (instance methods) that all instances of a class will have access to use. These behaviours are not unique to a single instance but are shared amongst the instances of the class. State is unqiue to individual instances of a class.
+
+---
+
+# How can we expose information about the state of the object using instance methods?
+
+We can expose information about the state of an object by defining an instance method in the class definition and within that instance method's definition, referencing the instance variable associated with the calling object. Here's an example:
+
+```ruby
+class Human
+  def initialize(name)
+    @name = name
+  end
+
+  def name
+    @name
+  end
+end
+
+james = Human.new("James")
+james.name #=> "James"
+
+```
+
+In the code above, the instance method `name` is defined within the `Human` class. Within this instance method we implicitly return the value of the `@name` instance variable associated with whatever the caller object is. In this example, when the `Human` object `james` invokes the `name` method, the value of `@name` is returned, `"James"`. This is known as a *creating a public interface* which allows us to *expose* information about the state of an object in our *global/outer* codebase.
+
+---
+
+# What is a collaborator object, and what is the purpose of using collaborator objects in OOP?
+
+A collaborator object is an object that is a part of another object's state. Technically any object type that is a part of another object's state is a collaborator object, but generally when we mention collaborator objects we're talking about custom made types of objects that are assigned to the state of another custom made type of object.
+
+The purpose of a collaborator object is to extend the functionality of an object to it's *collaboratee/owner*. Now that the collaborator object is a part of its owner's state, the owner can potentially access functionality of the collaborator. A collaborate also serve as a way to model real world relationships between entities. Here's an example:
+
+```ruby
+
+class PetOwner
+  attr_reader :pet
+
+  def initialize(name, pet)
+    @name = name
+    @pet = pet
+  end
+
+  def introduction
+    puts "Hi I'm #{@name} and this is my pet #{pet.class}, #{pet.name}."
+  end 
+end
+
+class Cat
+  attr_reader :name
+
+  def initialize(name)
+    @name = name
+  end
+end
+
+kitty = Cat.new("Kit")
+joe   = PetOwner.new("Joe", kitty)
+
+joe.introduction # Outputs: "Hi I'm Joe and this is my pet Cat, Kit."
+
+```
+
+As seen in the above example, the `Cat` object `kitty` is a collaborator to the `Human` object `joe`, as seen with `kitty` being assigned to `joe`'s state in the `initialize` method *(`@pet = pet`)*. As demonstrated on the final line, we're able to extend the capabilities of `Human` by accessing the collaborator and its instance methods as seen with the interpolation of `pet.name` in `Human#introduction.
+
+---
+
+# What is an accessor method?
+
+An accessor method is an instance method that is used to access or modify instance variables associated with an object. Here's an example of the 2 types of accessor methods, getters and setters:
+
+```ruby
+class MyClass
+  def initialize(name)
+    @name = name
+  end
+
+  def name
+    @name
+  end
+
+  def name=(new_name)
+    @name = new_name
+  end
+end
+
+an_instance = MyClass.new('Insty')
+an_instance.name #=> 'Insty'
+an_instance.name = 'Random Name'
+an_instance.name #=> 'Random Name'
+
+```
+
+As seen above instance methods `MyClass#name` is used to return the instance variable `@name` (getter) and `MyClass#name=` is used to modify the value of the instance variable `@name` (setter).
+
+In Ruby there is a method called `attr_accessor` that can automatically create getters and setters for the method arguments passed to it. Here's an example of the use of `attr_accessor` to create accessor methods:
+
+```ruby
+class MyClass
+  attr_accessor :name
+
+  def initialize(name)
+    @name = name
+  end
+end
+
+an_instance = MyClass.new('Insty')
+an_instance.name #=> 'Insty'
+an_instance.name = 'Random Name'
+an_instance.name #=> 'Random Name'
+
+```
+
+# How do you decide whether to reference an instance variable or a getter method?
+
+---
+
+# When would you call a method with self?
+
+There are a few circumstances where you would want to use `self` to call a method but there is one main reason that `self` is used to call methods in. `self` is used to explicitly call setter methods in Ruby. Otherwise Ruby will mistaken the setter method call for a local variable reassignment. Like in this example:
+
+```ruby
+class Human
+  attr_reader :name
+
+  def name=(new_name) # setter method for @name
+    @name = new_name
+  end
+
+  def initialize(name)
+    @name = name
+  end
+
+  def capitalize_name
+    name = name.capitalize
+  end
+end
+
+me = Human.new('jack')
+p me.name            #=> 'jack'
+me.capitalize_name #=> NoMethodError
+```
+
+As seen above, the `Human#capitalize_name` is throwing an error. This is happening because Ruby is interpretting `name = name.capitalize` as a new local variable as opposed to the setter method `name=(new_name)`. The error is thrown because we're initializing a new local variable that is referencing itself with `String#capitalize` invoked on it, and because it hasn't been assigned to a value yet, it returns `nil`.
+
+To give Ruby context we need to explicitly tell it that we're calling `name=(new_name)` for the current instance. We can do this by using `self` to represent the current calling instance:
+
+```ruby
+class Human
+  attr_reader :name
+
+  def name=(new_name) # setter method for @name
+    @name = new_name
+  end
+
+  def initialize(name)
+    @name = name
+  end
+
+  def capitalize_name
+    self.name = name.capitalize
+  end
+end
+
+me = Human.new('jack')
+p me.name            #=> 'jack'
+me.capitalize_name 
+p me.name            #=> 'Jack'
+```
+
+As seen above, the `capitalize_name` method now successfully accesses the setter method `name=(new_name)` because we've explicitly called it using `self`.
