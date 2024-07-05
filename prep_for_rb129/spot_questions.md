@@ -659,3 +659,48 @@ p me.name            #=> 'Jack'
 ```
 
 As seen above, the `capitalize_name` method now successfully accesses the setter method `name=(new_name)` because we've explicitly called it using `self`.
+
+---
+
+# What is `self`?
+
+`self` represents an object. `self` represents different objects depending on its context. Here are some of the main contexts `self` can be used in in object oriented Ruby and what it represents for each context:
+
+Here's an example:
+
+```ruby
+class SampleClass
+  def self.class_method # Used to define a class method
+    self # Within a class method
+  end
+
+  def some_instance_method
+    self # Within an instance method
+  end
+
+  def value=(new_value)
+    @value = new_value
+  end
+
+  def change_value
+    self.value = "new value"
+  end
+end
+
+p SampleClass.class_method          #=> SampleClass
+new_instance = SampleClass.new
+new_instance.change_value
+p new_instance.some_instance_method #=> #<SampleClass:0x000000010072ff50 @value="new value">
+```
+
+In the first main context **"used to define a class method"** `self` represents the Class object itself, and when prepended to a defined method name, symbolizes that the method is a class method.
+
+In the second context **"within a class method"** `self` represents the class object itself. In the case of the example `self` will return `SampleClass`.
+
+In the third context **"within an instance method"** `self` represents the calling instance that is invoking the respective instance method. To demonstrate, the final line, `new_instance.some_instance_method`, returns `new_instance`.
+
+`self` is also used to disambugate between local variables and method calls. This is demonstrated in the `change_value` instance method, where `self.value = "new value"` is invoked, what's happening here is that `value=(new_value)` method is being invoked on the calling/recieving instance. Without `self` prepended to `value=(new_value)` Ruby would interpret this as a local variable, `value`, being initialized (`value = "new value"`).
+
+---
+
+#
