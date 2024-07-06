@@ -127,7 +127,7 @@ In the example above there's a `Car`, `Truck` and `Boat` class. All of these cla
 
 In this example, the classes share a common `drive` public interface. Each instantiates a different type of object but all instances will respond to the same method call, but behaviours may be different as shown with the return value of `boat.drive`.
 
-### Polymorphism through Mixins
+### Polymorphism through Mixins (interface inheritance)
 
 Similar to polymorphism through inheritance, modules used as mixins can be used to achieve polymorphism as well. Here's a remix of the code snippet from the last example to illustrate:
 ```ruby
@@ -195,7 +195,7 @@ Polymorphism is the concept of objects of different types being able to repsond 
 
 # What is duck typing? How does it relate to polymorphism - what problem does it solve?
 
-Duck typing is a form of polymorphism, in that it's a way for allowing objects of different types to respond to the same public interfaces, without relying on inheritance or explicit class hierarchies. This is polymorphism where shared interfaces is achieved through the use of mixins or by explicitly defining a behaviour with a common public interface within a class definition.
+Duck typing is a form of polymorphism, in that it's a way for allowing objects of different types to respond to the same public interfaces, without relying on inheritance or hierarchies. This is polymorphism where shared interfaces is achieved through the use of explicitly defining a behaviour with a common public interface within a class definition.
 
 Duck typing solves the problem of the coupling of objects' behaviours to an inheritance hierarchy. Duck typing helps loosen the coupling between an object's behaviour to an inheritance hierarchy by allowing for **has-a** relationships to be formed between objects and their behaviours. This can allow for more adaptable, flexible and maintainable code. It eliminates the dependency on a Class in a hierachial chain to maintain the same defined behaviours that are compaitaible with all of the current subclasses today, in a program that will most likely be changing and redefining definitions and subclasses overtime.
 
@@ -703,4 +703,248 @@ In the third context **"within an instance method"** `self` represents the calli
 
 ---
 
-#
+# Why use Interface Inheritance?
+
+Interface inheritance is good to use in situations where you want different classes to share the same behaviour but cannot do so through inheritance.
+
+Here's an example:
+
+```ruby
+module Milkable
+  def milking
+  end
+end
+
+class Animal
+  def eat
+  end
+  
+  def breath
+  end
+
+  def drink
+  end
+end
+
+class Dog < Animal 
+end
+
+class Cow < Animal
+  include Milkable
+end
+
+class Goat < Animal
+  include Milkable
+end
+```
+
+in the above example, `Dog`, `Cow` and `Goat` all inherit from their superclass, `Animal`. They share behaviours defined in `Animal` but a `Cow` and a `Goat` have a set of behaviour that differ from `Dog`, they can be milked. In this example we cannot simply add a `milking` behaviour to `Animal` as `Dog` would inherit it, which we do not want. There's the option to use duck-typing and define the same `milking` behaviour seperately in both `Goat` and `Cow`, problem is we would be repeating ourselves though and it would be tedious and redundant to re-type these behaviours. Therefore, the `milking` behaviour is placed in a module and then used as a mixin for `Goat` and `Cow`. This way we don't repeat ourselves nor does `Dog` inherit the behaviour. These are the benefits to interface inheritance.
+
+---
+
+# Give a practical example of the use of duck-typing in Ruby.
+
+```ruby
+module Milkable
+  def milk
+    "Traditional Milking Technique"
+  end
+end
+
+class Animal
+  def eat
+  end
+  
+  def breath
+  end
+
+  def drink
+  end
+end
+
+class Dog < Animal 
+end
+
+class Cow < Animal
+  include Milkable
+end
+
+class Almond
+  def milk
+    "Modern 'Milking' Technique"
+  end
+end
+
+cow = Cow.new
+almond = Almond.new
+
+[cow, almond].each { |milk_producer| milk_producer.milk } # Despite being different object types, both still respond to `#milk`
+```
+
+In the above example, the `Cow` and `Goat` classes inherit the `milk` behaviour via the `Milkable` module. There's another class `Almond` that also can be milked. A `milk` behaviour makes a lot of sense to have in the `Almond` class and it provides great context for its use case. The problem is that the `milk` behaviour from the `Milkable` module has a different functionality meaning we can't simply mixin the behaviour to `Almond` like we did with `Cow` and `Goat`. This is where duck-typing makes the most sense, because we can re-type a `milk` behaviour in `Almond` that has a different functionality from `Milkable::milk` but is the same public interface.
+
+---
+
+# What are some benefits of Duck-Typing? What Problem does it Solve?
+
+Duck-typing solves the problem of objects being too coupled to a rigid class hierarchy. Duck-typing emphasizes behaviour over object types and their relationships with eachother. Duck-typing can allow for mmore dynamic and flexible code that makes for easier changes to behaviour as opposed to trying to modify or change superclass' behaviour that effects **all** subclasses. In a program that is likely to change at some point, having classes that don't fall into a strict **is-a** relationship can be beneficial, which is where duck-typing can shine.
+
+*"If it quacks like a duck, it is a duck."*
+
+---
+
+# Where Would You Use Duck-Typing?
+
+You would use duck-typing in scenarios where different object types share a common public interface but have very different behaviours. Here's an example: 
+
+```ruby
+class Dice
+  def roll
+    rand(1..6)
+  end
+end
+
+class Ball
+  def roll
+    "Ball is rolling"
+  end
+end
+
+[Ball.new, Dice.new].each do |obj|
+  obj.roll # Despite being different types, each object responds to `roll`
+end
+```
+
+In the above example, it makes sense that both `Dice` and `Ball` classes have a `roll` behaviour, but the outcomes from these behaviours are very different. In this case it we can't use class inheritance because the objects are very unrelated and we can't use interface inheritance because the behaviours have very different functionality. This is where duck-typing is best used, to define same public interfaces that have different functionality in different classes where inheritance doesn't make sense.
+
+From a design perspective you may want to use duck-typing if you don't want to rely on a ridgid class hierarchy to share behaviours and you want a program that is more flexible to change. By using duck typing you can de-couple an object from a class hierarchy for defining behaviour which can help make behaviours that are more flexible and adaptable. 
+
+---
+
+# Difference Between Public, Private and Protected Methods in Ruby
+
+Public methods are methods that can be called from outside of the class definition that they were defined in. Private methods are methods that can only be called from within a class and its subclasses and cannot have a reciever/calling object (with the excpetion of `self` in newer versions of Ruby). Protected methods are methods that can only be called from within the class and its subclasses, and can be called with a reciever object of the respective class type.
+
+Examples:
+
+```ruby
+class MyClass
+  def initialize(value)
+    @value = value
+  end
+
+  def public_method
+    puts "I'm public!"
+  end
+
+  def access_private
+    private_method
+  end
+
+  def >(other_obj)
+    value > other_obj.value
+  end
+
+  protected
+
+  attr_reader :value
+
+  private
+
+  def private_method
+    puts "I'm Private..."
+  end
+end
+
+a = MyClass.new(10)
+b = MyClass.new(1)
+
+a.public_method #=> I'm Public!
+b.public_method #=> I'm Public!
+
+puts a > b #=> true
+puts b > a #=> false
+
+a.access_private # => I'm Private...
+b.access_private # => I'm Private...
+
+a.private_method # Error
+```
+
+---
+
+# What are Modules?
+
+Modules are essentially containers that you can group information like constants, classes and methods within. You can define a module using the `module` keyword followed by the name you want for the module. The information contained in the module is enclosed by an `end` keyword. Information from a module can be accessed directly via the `::` operator or through interface inheritance (mixins). Here's an example:
+
+```ruby
+module MyModule
+  CONST = "Constant Value"    # Storing constants
+
+  class SomeClass; end        # Storing a class
+
+  def self.some_module_method # Storing Module methods
+    "A module method"
+  end
+
+  def some_instance_method    # Storing instance methods
+    "An instance method"
+  end
+end
+
+class CustomObj
+  include MyModule
+end
+
+instance = CustomObj.new
+
+p MyModule::CONST               # => "Constant Value"
+p MyModule::SomeClass.new       # => #<MyModule::SomeClass:0x00000001052b0290>  
+p MyModule::some_module_method  # => "A module method"    
+p instance.some_instance_method # => "An instance method" (this is a mixin)
+```
+
+---
+
+# What are some use cases for Modules?
+
+Modules have three main use cases:
+
+### 1. Namespacing
+Modules are used for namespacing, meaning they are used to prevent naming collisions for similarly named methods or classes. Using the module name to give further context to appropriately named methods or classes. Here's an example:
+
+```ruby
+module Mammal
+  class Dog; end
+end
+
+module Robot
+  class Dog; end
+end 
+
+living_dog = Mammal::Dog.new
+robo_dog   = Robot::Dog.new
+```
+
+In the above example we have two `Dog` classes, but each `Dog` class is or a different category/type. If we had these defined in the more global scope, there would be a *"naming collision"* between the two. In this case we can *"containerize"* these two `Dog` classes in an appropriately named module that represents the category of `Dog` to provide bettwe context but to also help in avoiding naming collisions as seen above. `Mammal::Dog.new` and `Robot::Dog.new` are different object types despite having the same class names.
+
+### 2. As Mixins
+
+Modules can be used as mixins. Mixins are modules that *"mix in"* behaviour to classes that the module is *"included"* in. This comes in handy when we want to share behaviour amongst different classes without using class inheritance.
+
+### 3. Storing Out-Of-Place Methods
+
+When we have methods that are out of place that don't belong in a class nor do they belong in the global codebase. This can help categorize methods that seem out of place.
+
+Here's an example:
+
+```ruby
+module CustomModule
+  def self.out_of_place_method
+  end
+end
+```
+
+---
+
+
